@@ -1,35 +1,81 @@
-init_view : dialog {
-    key = "title";
-    initial_focus = "listbox";
-    : list_box {
-        tabs = "33";
-        width = 40;
-        key = "listbox";
-        allow_accept = true;
+// ============================================
+// AutoCAD¶Ô»°¿ò²âÊÔ
+// º¯ÊıÃû: dcl_test
+// ============================================
+
+dcl_test : dialog {
+    label = "DCL²âÊÔ";
+    : text {
+        label = "²âÊÔÍê³É£¡";
+        alignment = centered;
     }
     ok_cancel_err;
 }
 
 // ============================================
-// AutoCADæ ‡é¢˜æ ä¿¡æ¯è¾“å…¥å¯¹è¯æ¡†
-// æ–‡ä»¶å: titleinfo.dcl
+// Í¼Ö½ÀàĞÍÑ¡Ôñ¶Ô»°¿ò
+// º¯ÊıÃû: blueprint_type
 // ============================================
 
-titleinfo : dialog {
-    label = "æ ‡é¢˜æ ä¿¡æ¯è¾“å…¥";
+blueprint_type : dialog {
+    label = "Í¼Ö½ÀàĞÍÑ¡Ôñ";
     
-    // ä¸»å¸ƒå±€ - å‚ç›´æ’åˆ—
     : column {
         fixed_width = true;
         alignment = "left";
         
-        // é¡¹ç›®ä¿¡æ¯ç»„
+        : row {
+            : radio_button {
+                key = "architectural";
+                label = "½¨ÖşÍ¼Ö½";
+                value = true;
+            }
+        }
+        
+        : row {
+            : radio_button {
+                key = "structural";
+                label = "½á¹¹Í¼Ö½";
+            }
+        }
+        
+        : row {
+            : radio_button {
+                key = "electrical";
+                label = "µçÆøÍ¼Ö½";
+            }
+        }
+        
+        : row {
+            : radio_button {
+                key = "plumbing";
+                label = "¸øÅÅË®Í¼Ö½";
+            }
+        }
+    }
+    ok_cancel_err;
+}
+
+// ============================================
+// AutoCAD±êÌâÀ¸ĞÅÏ¢ÊäÈë¶Ô»°¿ò
+// º¯ÊıÃû: title_table
+// ============================================
+
+title_table : dialog {
+    label = "±êÌâÀ¸ĞÅÏ¢ÊäÈë";
+    
+    // Ö÷²¼¾Ö - ´¹Ö±ÅÅÁĞ
+    : column {
+        fixed_width = true;
+        alignment = "left";
+        
+        // ÏîÄ¿ĞÅÏ¢×é
         : boxed_column {
-            label = "é¡¹ç›®ä¿¡æ¯";
+            label = "ÏîÄ¿ĞÅÏ¢";
             
             : row {
                 : text {
-                    label = "ä¸€çº§é¡¹ç›®æ ‡é¢˜:";
+                    label = "Ò»¼¶ÏîÄ¿±êÌâ:";
                     width = 15;
                     fixed_width = true;
                 }
@@ -43,7 +89,7 @@ titleinfo : dialog {
             
             : row {
                 : text {
-                    label = "äºŒçº§é¡¹ç›®æ ‡é¢˜:";
+                    label = "¶ş¼¶ÏîÄ¿±êÌâ:";
                     width = 15;
                     fixed_width = true;
                 }
@@ -56,7 +102,7 @@ titleinfo : dialog {
             
             : row {
                 : text {
-                    label = "è®¾è®¡é˜¶æ®µ:";
+                    label = "Éè¼Æ½×¶Î:";
                     width = 15;
                     fixed_width = true;
                 }
@@ -70,25 +116,25 @@ titleinfo : dialog {
         
         spacer_1;
         
-        // å›¾çº¸ä¿¡æ¯ç»„
+        // Í¼Ö½ĞÅÏ¢×é
         : boxed_column {
-            label = "å›¾çº¸ä¿¡æ¯";
+            label = "Í¼Ö½ĞÅÏ¢";
             
             : row {
                 : text {
-                    label = "æ¯”ä¾‹:";
-                    width = 15;
+                    label = "±ÈÀı:";
+                    width = 4;
                     fixed_width = true;
                 }
                 : edit_box {
                     key = "scale";
-                    width = 15;
+                    width = 8;
                     fixed_width = true;
                 }
                 
                 : text {
-                    label = "æ—¥æœŸ:";
-                    width = 8;
+                    label = "ÈÕÆÚ:";
+                    width = 4;
                     fixed_width = true;
                 }
                 : edit_box {
@@ -97,7 +143,7 @@ titleinfo : dialog {
                     fixed_width = true;
                 }
                 : button {
-                    label = "ä»Šå¤©";
+                    label = "½ñÌì";
                     key = "today";
                     width = 8;
                     fixed_width = true;
@@ -107,14 +153,14 @@ titleinfo : dialog {
         
         spacer_1;
         
-        // ç¼–å·ä¿¡æ¯ç»„
+        // ±àºÅĞÅÏ¢×é
         : boxed_column {
-            label = "ç¼–å·ä¿¡æ¯";
+            label = "±àºÅĞÅÏ¢";
             
             : row {
                 : text {
-                    label = "CADDå·:";
-                    width = 15;
+                    label = "CADDºÅ:";
+                    width = 8;
                     fixed_width = true;
                 }
                 : edit_box {
@@ -124,7 +170,7 @@ titleinfo : dialog {
                 }
                 
                 : text {
-                    label = "æ–‡ä»¶å·:";
+                    label = "ÎÄ¼şºÅ:";
                     width = 8;
                     fixed_width = true;
                 }
@@ -137,8 +183,8 @@ titleinfo : dialog {
             
             : row {
                 : text {
-                    label = "é¡¹ç›®å·:";
-                    width = 15;
+                    label = "ÏîÄ¿ºÅ:";
+                    width = 8;
                     fixed_width = true;
                 }
                 : edit_box {
@@ -148,7 +194,7 @@ titleinfo : dialog {
                 }
                 
                 : text {
-                    label = "ç‰ˆæœ¬å·:";
+                    label = "°æ±¾ºÅ:";
                     width = 8;
                     fixed_width = true;
                 }
