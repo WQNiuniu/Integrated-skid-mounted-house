@@ -198,10 +198,12 @@ title_table : dialog {
                     width = 8;
                     fixed_width = true;
                 }
-                : edit_box {
+                : popup_list {
                     key = "version";
                     width = 15;
                     fixed_width = true;
+                    list = "A°æ\nB°æ\n0°æ";
+                    value = "1";
                 }
             }
         }
