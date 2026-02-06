@@ -1,4 +1,4 @@
-(defun c:dclloader()
+(defun c:dclloader ()
   ;; （测试用）选择并加载 DCL 文件，预览指定对话框
   (setq dlg_file (getfiled "选择要预览的对话框所在文件" "E:\\code\\Projects\\Integrated-skid-mounted-house\\demo.dcl" "DCL" 2))
   (if (= dlg_file nil) (exit))
@@ -27,6 +27,7 @@
   )
 
   ;; 打开 blueprint_type 对话框
+  (setq selected_type "architectural")  ;; 默认选择建筑图纸
   (if (not (new_dialog "blueprint_type" dlg_id))
     (progn (unload_dialog dlg_id) (princ "\n无法创建对话: blueprint_type") (exit))
   )
@@ -59,7 +60,7 @@
               
               ;; 设置控件动作
               (action_tile "today" 
-                "(set_tile \"date\" (menucmd \"M=$(edtime,$(getvar,date),YYYY-MO-DD)\"))"
+                "(set_tile \"date\" (menucmd \"M=$(edtime,$(getvar,date),YYYY.MO.DD)\"))"
               )
               (action_tile "accept" 
                 (strcat "(progn "
@@ -95,8 +96,8 @@
 ;; 初始化标题栏对话框默认值
 (defun init-title-dialog ()
   (set_tile "scale" "1:100")
-  (set_tile "version" "A版")
-  (set_tile "date" (menucmd "M=$(edtime,$(getvar,date),YYYY-MO-DD)"))
+  (set_tile "version" "0")
+  (set_tile "date" (menucmd "M=$(edtime,$(getvar,date),YYYY.MO.DD)"))
 )
 
 ;; 收集标题栏信息
@@ -110,7 +111,17 @@
     (cons "CADD号"       (get_tile "cadd"))
     (cons "文件号"       (get_tile "fileno"))
     (cons "项目号"       (get_tile "projectno"))
-    (cons "版本号"       (get_tile "version"))
+    (cons "版本号"       (get_version_text))
+  )
+)
+
+;; 获取版本号文本（根据数值转换为对应文本）
+(defun get_version_text ()
+  (cond
+    ((= (get_tile "version") "0") "A版")
+    ((= (get_tile "version") "1") "B版")
+    ((= (get_tile "version") "2") "0版")
+    (t "A版")
   )
 )
 
@@ -212,16 +223,143 @@
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "阶段")
   
-  ;; 位置有问题，先注释掉
-  ; (setq text-pt (list 
-  ;   (+ (car insert-pt) (/ (+ (nth 0 col-widths) (nth 1 col-widths)) 2))
-  ;   (+ (cadr insert-pt) (* row-height 2.5))
-  ;   0.0
-  ; ))
-  ; (if (> (strlen (cdr (assoc "设计阶段" *title-info*))) 0)
-  ;   (progn
-  ;     (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
-  ;              (cdr (assoc "设计阶段" *title-info*)))
-  ;   )
-  ; )
+  (setq text-pt (list 
+    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (cadr insert-pt) (* row-height 2.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "设计阶段" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "设计阶段" *title-info*)))
+    )
+  )
+
+  ;; CADD号
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (cadr insert-pt) (* row-height 2.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "CADD号")
+  
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200 1800) (/ 5000 2))
+    (+ (cadr insert-pt) (* row-height 2.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "CADD号" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "CADD号" *title-info*)))
+    )
+  )
+
+  ;; 比例
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (/ (nth 0 col-widths) 2))
+    (+ (cadr insert-pt) (* row-height 1.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "比例")
+  
+  (setq text-pt (list 
+    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (cadr insert-pt) (* row-height 1.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "比例" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "比例" *title-info*)))
+    )
+  )
+ 
+  ;; 文件号
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (cadr insert-pt) (* row-height 1.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "文件号")
+  
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200 1800) (/ 5000 2))
+    (+ (cadr insert-pt) (* row-height 1.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "文件号" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "文件号" *title-info*)))
+    )
+  )
+  
+  ;; 日期
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (/ (nth 0 col-widths) 2))
+    (+ (cadr insert-pt) (* row-height 0.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "日期")
+  
+  (setq text-pt (list 
+    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (cadr insert-pt) (* row-height 0.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "日期" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "日期" *title-info*)))
+    )
+  )
+  
+  ;; 项目号
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (cadr insert-pt) (* row-height 0.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "项目号")
+  
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200 1800) (/ 3500 2))
+    (+ (cadr insert-pt) (* row-height 0.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "项目号" *title-info*))) 0)
+    (progn
+      
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "项目号" *title-info*)))
+    )
+  )
+  
+  ;; 版本号
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt) (+ 1500 2200 1800 3500) (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 0.5))
+    0.0
+  ))
+  (if (> (strlen (cdr (assoc "版本号" *title-info*))) 0)
+    (progn
+      (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
+               (cdr (assoc "版本号" *title-info*)))
+    )
+  )
+  
+  ;; 恢复系统变量
+  (setvar "CMDECHO" old-cmdecho)
+  (setvar "OSMODE" old-osmode)
+  (setvar "TEXTSTYLE" old-textstyle)
+  
+  (princ "\n标题栏表格生成完成！")
+  t
 )

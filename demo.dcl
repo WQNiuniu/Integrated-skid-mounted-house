@@ -28,7 +28,7 @@ blueprint_type : dialog {
             : radio_button {
                 key = "architectural";
                 label = "½¨ÖþÍ¼Ö½";
-                value = true;
+                value = 1;
             }
         }
         
