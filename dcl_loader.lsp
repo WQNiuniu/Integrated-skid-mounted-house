@@ -126,12 +126,12 @@
 )
 
 ;; 生成标题栏表格
-(defun generate-title-table (/ insert-pt total-width total-height row-height
+(defun generate-title-table (/ select-pt insert-pt total-width total-height row-height
                                col-widths row-heights text-pt text-height
                                current-pt line-start line-end old-cmdecho
                                old-osmode old-textstyle)
-  (princ "\n请选择表格插入点: ")
-  (setq insert-pt (getpoint))
+  (princ "\n请选择表格右下角点: ")
+  (setq select-pt (getpoint))
   
   ;; 保存当前系统变量
   (setq old-cmdecho (getvar "CMDECHO"))
@@ -143,10 +143,17 @@
   (setvar "OSMODE" 0)
   
   ;; 表格参数
-  (setq total-width (+ 1500 2200 1800 3500 1500))  ; 总宽度：1500+2200+1800+3500+1500
-  (setq total-height (* 600 9))                    ; 总高度：600*9
+  (setq total-width (+ 1500 2000 1500 2200 1800 3500 1500))  ; 总宽度：1500+2000+1500+2200+1800+3500+1500
+  (setq total-height (+ 2000 (* 600 9)))                    ; 总高度：2000+600*9
   (setq row-height 600)                            ; 行高
-  (setq col-widths '(1500 2200 1800 3500 1500))    ; 列宽
+  (setq col-widths '(1500 2000 1500 2200 1800 3500 1500))    ; 列宽（新增左侧两列）
+  
+  ;; 计算表格左下角点（选择点向左上方偏移）
+  (setq insert-pt (list
+    (- (car select-pt) total-width)
+    (cadr select-pt)
+    (caddr select-pt)
+  ))
   
   ;; 调用绘制表格函数
   (draw-table insert-pt total-width total-height row-height col-widths)
@@ -170,12 +177,20 @@
     (setq current-pt (polar current-pt (/ pi 2) row-height))
     (command "._line" current-pt (polar current-pt 0 total-width) "")
   )
-  (setq current-pt (polar current-pt (/ pi 2) (* row-height 4)))
+  (repeat 3
+    (setq current-pt (polar current-pt (/ pi 2) row-height))
+    (command "._line" current-pt (polar current-pt 0 3500) "")
+  )
+  (setq current-pt (polar current-pt (/ pi 2) row-height))
+  (command "._line" current-pt (polar current-pt 0 total-width) "")
+  (setq current-pt (polar current-pt (/ pi 2) row-height))
+  (command "._line" current-pt (polar current-pt 0 1500) "")
+  (setq current-pt (polar current-pt (/ pi 2) row-height))
   (command "._line" current-pt (polar current-pt 0 total-width) "")
   
   ;; 绘制内部竖线
   (setq current-pt insert-pt)
-  (setq col-heights (list (* row-height 3) (* row-height 3) (* row-height 3) row-height))
+  (setq col-heights (list (* row-height 9) (* row-height 9) (* row-height 3) (* row-height 3) (* row-height 3) row-height))
   (foreach col (mapcar 'list col-widths col-heights)
     (setq current-pt (polar current-pt 0 (car col)))
     (command "._line" current-pt (polar current-pt (/ pi 2) (cadr col)) "")
@@ -183,7 +198,71 @@
 )
 
 ;; 填充文字函数
-(defun fill-text (insert-pt total-width total-height row-height col-widths / text-pt text-height)
+(defun fill-text (insert-pt total-width total-height row-height col-widths / text-pt text-height offset-left)
+  ;; 左侧新增两列的总宽度偏移
+  (setq offset-left (+ 1500 2000))
+
+  ;; 表头
+  (setq text-height 600)
+  (setq text-pt (list 
+    (+ (car insert-pt) 8400)
+    (+ (cadr insert-pt) (+ (* row-height 9) 1300))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "四川科宏石油天然气工程有限公司")
+
+  (setq text-height 260)
+  (setq text-pt (list 
+    (+ (car insert-pt) 5000)
+    (+ (cadr insert-pt) (* row-height 9.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "设计证书编号：A151008377  甲级")
+
+  (setq text-pt (list 
+    (+ (car insert-pt) 11000)
+    (+ (cadr insert-pt) (* row-height 9.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "勘察证书编号：B151008377  甲级")
+
+  ;; 分工表
+  (setq text-height 300)
+  (setq text-pt (list 
+    (+ (car insert-pt)  (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 8.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "制图")
+
+  (setq text-pt (list 
+    (+ (car insert-pt)  (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 7.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "设计")
+
+  (setq text-pt (list 
+    (+ (car insert-pt)  (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 6.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "校对")
+
+  (setq text-pt (list 
+    (+ (car insert-pt)  (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 5.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "审核")
+
+  (setq text-pt (list 
+    (+ (car insert-pt)  (/ 1500 2))
+    (+ (cadr insert-pt) (* row-height 4.5))
+    0.0
+  ))
+  (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "审定")
+
   ;; 一级项目标题
   (setq text-height 400)
   (setq text-pt (list 
@@ -191,14 +270,14 @@
     (+ (cadr insert-pt) (* row-height 8))  ; 第一行和第二行中间
     0.0
   ))
-  
+
   (if (> (strlen (cdr (assoc "一级项目标题" *title-info*))) 0)
     (progn
       (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
                (cdr (assoc "一级项目标题" *title-info*)))
     )
   )
-  
+
   ;; 二级项目标题
   (setq text-height 400)
   (setq text-pt (list 
@@ -206,25 +285,25 @@
     (+ (cadr insert-pt) (* row-height 5))  ; 第3-5行的中间
     0.0
   ))
-  
+
   (if (> (strlen (cdr (assoc "二级项目标题" *title-info*))) 0)
     (progn
       (command "._text" "_justify" "MC" "_non" text-pt text-height 0 
                (cdr (assoc "二级项目标题" *title-info*)))
     )
   )
-  
+
   ;; 设计阶段
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (/ (nth 0 col-widths) 2))
+    (+ (car insert-pt) offset-left (/ (nth 2 col-widths) 2))
     (+ (cadr insert-pt) (* row-height 2.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "阶段")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (car insert-pt) offset-left 1500 (/ 2200 2))
     (+ (cadr insert-pt) (* row-height 2.5))
     0.0
   ))
@@ -238,14 +317,14 @@
   ;; CADD号
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200) (/ 1800 2))
     (+ (cadr insert-pt) (* row-height 2.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "CADD号")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200 1800) (/ 5000 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200 1800) (/ 5000 2))
     (+ (cadr insert-pt) (* row-height 2.5))
     0.0
   ))
@@ -259,14 +338,14 @@
   ;; 比例
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (/ (nth 0 col-widths) 2))
+    (+ (car insert-pt) offset-left (/ (nth 2 col-widths) 2))
     (+ (cadr insert-pt) (* row-height 1.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "比例")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (car insert-pt) offset-left 1500 (/ 2200 2))
     (+ (cadr insert-pt) (* row-height 1.5))
     0.0
   ))
@@ -276,18 +355,18 @@
                (cdr (assoc "比例" *title-info*)))
     )
   )
- 
+
   ;; 文件号
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200) (/ 1800 2))
     (+ (cadr insert-pt) (* row-height 1.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "文件号")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200 1800) (/ 5000 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200 1800) (/ 5000 2))
     (+ (cadr insert-pt) (* row-height 1.5))
     0.0
   ))
@@ -297,18 +376,18 @@
                (cdr (assoc "文件号" *title-info*)))
     )
   )
-  
+
   ;; 日期
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (/ (nth 0 col-widths) 2))
+    (+ (car insert-pt) offset-left (/ (nth 2 col-widths) 2))
     (+ (cadr insert-pt) (* row-height 0.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "日期")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) 1500 (/ 2200 2))
+    (+ (car insert-pt) offset-left 1500 (/ 2200 2))
     (+ (cadr insert-pt) (* row-height 0.5))
     0.0
   ))
@@ -318,18 +397,18 @@
                (cdr (assoc "日期" *title-info*)))
     )
   )
-  
+
   ;; 项目号
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200) (/ 1800 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200) (/ 1800 2))
     (+ (cadr insert-pt) (* row-height 0.5))
     0.0
   ))
   (command "._text" "_justify" "MC" "_non" text-pt text-height 0 "项目号")
-  
+
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200 1800) (/ 3500 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200 1800) (/ 3500 2))
     (+ (cadr insert-pt) (* row-height 0.5))
     0.0
   ))
@@ -340,11 +419,11 @@
                (cdr (assoc "项目号" *title-info*)))
     )
   )
-  
+
   ;; 版本号
   (setq text-height 300)
   (setq text-pt (list 
-    (+ (car insert-pt) (+ 1500 2200 1800 3500) (/ 1500 2))
+    (+ (car insert-pt) offset-left (+ 1500 2200 1800 3500) (/ 1500 2))
     (+ (cadr insert-pt) (* row-height 0.5))
     0.0
   ))
@@ -354,12 +433,12 @@
                (cdr (assoc "版本号" *title-info*)))
     )
   )
-  
+
   ;; 恢复系统变量
   (setvar "CMDECHO" old-cmdecho)
   (setvar "OSMODE" old-osmode)
   (setvar "TEXTSTYLE" old-textstyle)
-  
+
   (princ "\n标题栏表格生成完成！")
   t
 )
